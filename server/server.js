@@ -12,9 +12,17 @@ const jwt      = require("jsonwebtoken");
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 // Middleware — mount BEFORE any route.
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",                       // dev
+    "https://your-platescout.vercel.app",          // <-- your Vercel URL (after Step D)
+    /\.vercel\.app$/,                              // optional: preview branches
+  ],
+  credentials: true,
+}));
 app.use(express.json());
 
 //   - Use process.env.MONGO_URI (from your .env file).
@@ -203,4 +211,12 @@ app.use((req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+});
+
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    time: new Date().toISOString(),
+    mongo: mongoose.connection.readyState === 1,
+  });
 });
