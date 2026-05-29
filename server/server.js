@@ -12,7 +12,6 @@ const jwt      = require("jsonwebtoken");
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 // Middleware — mount BEFORE any route.
 app.use(cors({
@@ -204,6 +203,17 @@ app.post("/api/logout", (req, res) => {
   return res.status(200).json({ message: "Logged out." });
 });
 
+// ============================================================
+// GET /api/health
+// ============================================================
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    time: new Date().toISOString(),
+    mongo: mongoose.connection.readyState === 1,
+  });
+});
+
 // 404 fallback — must come AFTER every route or it'll eat them.
 app.use((req, res) => {
   return res.status(404).json({ error: "Route not found." });
@@ -213,10 +223,3 @@ app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
 
-app.get("/api/health", (req, res) => {
-  res.json({
-    status: "ok",
-    time: new Date().toISOString(),
-    mongo: mongoose.connection.readyState === 1,
-  });
-});
